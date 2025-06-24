@@ -1,32 +1,51 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# Visual Studio specific files
+.vs/
+*.sln
+*.suo
+*.user
+*.filters
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.vcxproj.user.auto-cmake
+*.vcxproj.user.bak
+*.vcxproj.user.user
+*.tlog
+*.lastbuildstate
+*.aps
+*.bsc
+*.idb
+*.ipch
+*.log
 *.obj
-
-# Precompiled Headers
-*.gch
 *.pch
+*.pdb
+*.res
+*.sbr
+*.sdf
+*.vcup
+*.VC.db
+*.VC.VC.opendb
+*.opensdf
+*.rc.o
+*.rsp
+*.xml.user
+*.vcxproj.lastbuildlog
+*.vcxproj.user.user.tlog
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
+# CMake specific (if using CMake with Visual Studio)
+/build/
+/IDE/
+/out/
+/CMakeCache.txt
+/CMakeFiles/
+/cmake_install.cmake
+/install_manifest.txt
+/compile_commands.json
+
+# Other common build artifacts
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
-*.out
-*.app
+*.lib
+*.ilk
+*.exp

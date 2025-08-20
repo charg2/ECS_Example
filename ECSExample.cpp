@@ -3,7 +3,15 @@
 
 #include "ECSExample.h"
 #include <execution>
+#include <chrono>
 #include <entt/entt.hpp>
+
+import ISystem;
+import IComponent;
+import EntityObject;
+
+import Sender;
+import Pc;
 
 using namespace std;
 
@@ -21,42 +29,21 @@ struct Velocity
     float y;
 };
 
-class EntityObject
+class IPacket{};
+class C_Move : public IPacket
 {
 public:
-    EntityObject( entt::entity entity )
-    : _entity{ entity }
+    Position fromPos;
+    Position toPos;
+};
+
+class Cell : public entt::registry
+{
+public:
+    Cell()
+    : entt::registry( 64 )
     {
     }
-
-    entt::entity GetEntity() const { return _entity; }
-
-private:
-    entt::entity _entity;
-};
-
-class Pc : public EntityObject
-{
-};
-
-class Npc : public EntityObject
-{
-};
-
-struct PcTag{};
-struct NpcTag{};
-
-class ISystem
-{
-public:
-    virtual ~ISystem() = default;
-    virtual void Update( int deltaTick ) = 0;
-};
-
-class World : public entt::registry
-{
-public:
-    World() = default;
 
     template< std::derived_from< ISystem > T >
     void RegisterSystem()
@@ -64,91 +51,183 @@ public:
         _systems.emplace_back( std::make_unique< T >( *this ) );
     }
 
-    void Update( int deltaTick )
+    void Update( float deltaTime )
     {
         for ( auto& system : _systems )
         {
-            system->Update( deltaTick );
+            system->Update( deltaTime );
         }
+    }
+
+    void EnterCell( EntityObjectRef object )
+    {
+        _objects.emplace( object->GetEntity(), object );
+        object->SetEntity( entt::registry::create() );
+    }
+
+    void LeaveCell( EntityObjectRef object )
+    {
+        _objects.erase( object->GetEntity() );
+        entt::registry::destroy( object->GetEntity() );
     }
 
 private:
     std::vector< std::unique_ptr< ISystem > > _systems;
+    std::unordered_map< entt::entity, EntityObjectPtr > _objects;
 };
 
 class CommandSystem final : public ISystem
 {
 public:
-    CommandSystem( World& world )
-    : _world{ world }
+    CommandSystem( Cell& cell )
+    : _cell{ cell }
     {
     }
 
     ~CommandSystem() final = default;
 
-    void Update( int deltaTick ) final
+    void Update( float deltaTime ) final
     {
     }
 
 private:
-    World& _world;
+    Cell& _cell;
 };
 
 class MovementSystem final : public ISystem
 {
 public:
-    MovementSystem( World& world )
-    : _world{ world }
+    MovementSystem( Cell& cell )
+    : _cell{ cell }
     {
     }
 
     ~MovementSystem() final = default;
 
-    void Update( int deltaTick ) final
+    void Update( float deltaTime ) final
     {
-        auto view = _world.view< Position, const DestPosition, const Velocity >();
-        for ( auto [ entity, pos, destPos, vel ] : view.each() )
+        auto view = _cell.view< Position, const DestPosition, const Velocity, SenderPtr >();
+        for ( auto [ entity, pos, destPos, vel, sender ] : view.each() )
         {
-            pos.x += vel.x * deltaTick;
-            pos.y += vel.y * deltaTick;
+            auto fromPos = pos;
+
+            pos.x += vel.x * deltaTime;
+            pos.y += vel.y * deltaTime;
             if ( pos.x >= destPos.x && pos.y >= destPos.y )
                 std::cout << "도착" << pos.x << ", " << pos.y << std::endl;
+
+            if ( sender )
+            {
+                C_Move move{ .fromPos = fromPos, .toPos = pos };
+                sender->Send( move );
+            }
         }
     }
 
 private:
-    World& _world;
+    Cell& _cell;
 };
 
-using PcPtr  = std::shared_ptr< Pc >;
-using NpcPtr = std::shared_ptr< Npc >;
+class SightSystem final : public ISystem
+{
+public:
+    SightSystem( Cell& cell )
+    : _cell{ cell }
+    {
+    }
 
-template< typename T >
-auto GetFactory( World& registry )
+    ~SightSystem() final = default;
+
+    void Update( float deltaTime ) final
+    {
+    }
+
+private:
+    Cell& _cell;
+};
+
+
+template< std::derived_from< WorldObject > T >
+auto GetFactory( Cell& registry )
 {
     auto obj{ std::make_shared< T >( registry.create() ) };
+
     registry.emplace< Position >( obj->GetEntity(), 1.0f, 2.0f );
-    registry.emplace< Velocity >( obj->GetEntity(), 1.0f, 2.0f );
+    registry.emplace< Velocity >( obj->GetEntity(), 2.0f, 4.0f );
+
+    if constexpr ( std::is_same_v< T, Pc > )
+        obj->SetSender( std::make_shared< Sender >() );
 
     if constexpr ( std::is_same_v< T, Npc > )
         registry.emplace< DestPosition >( obj->GetEntity(), 4.0f, 5.0f );
 
+    registry.emplace< SenderPtr >( obj->GetEntity(), obj->GetSender() );
+
     return obj;
 }
 
-int main()
+constexpr size_t row{ 2 };
+constexpr size_t col{ 2 };
+
+class World
 {
-    World world;
+public:
+    World()
+    {
+    }
 
-    world.RegisterSystem< CommandSystem >();
-    world.RegisterSystem< MovementSystem >();
+    void Init()
+    {
+        for ( size_t i = 0; i < row * col; ++i )
+        {
+            auto& cell = _cells[ i ];
+            cell.RegisterSystem< CommandSystem >();
+            cell.RegisterSystem< MovementSystem >();
+            cell.RegisterSystem< SightSystem >();
 
-    GetFactory< Pc >( world );
-    GetFactory< Npc >( world );
-    GetFactory< Npc >( world );
-    GetFactory< Npc >( world );
+            GetFactory< Pc >( cell );
+            GetFactory< Npc >( cell );
+        }
+    }
 
-    world.Update( 16 );
+    void EnterWorld( EntityObjectRef object )
+    {
+    }
+
+    void Update( float deltaTime )
+    {
+        for ( auto& cell : _cells )
+        {
+            cell.Update( deltaTime );
+        }
+    }
+
+private:
+    std::array< Cell, row * col > _cells;
+};
+
+inline static std::unique_ptr< World > GWorld{};
+
+auto main() -> int
+{
+    GWorld = std::make_unique< World >();
+    GWorld->Init();
+
+    std::chrono::duration< float > deltaTime{};
+    std::chrono::duration< float > runTime{};
+
+    while ( runTime < 10s )
+    {
+        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+
+        GWorld->Update( deltaTime.count() );
+
+        std::this_thread::sleep_for( 16ms );
+
+        deltaTime = std::chrono::system_clock::now() - start;
+
+        runTime += deltaTime;
+    }
 
 	return 0;
 }

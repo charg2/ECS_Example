@@ -31,8 +31,27 @@ FetchContent_Declare(
 # 해당 프로젝트의 CMakeLists.txt를 처리하여 EnTT::EnTT 대상을 사용할 수 있게 합니다.
 FetchContent_MakeAvailable(entt)
 
+# `Source` 디렉터리 내의 모든 .cpp 파일을 찾습니다.
+file(GLOB_RECURSE ECS_SOURCES
+    "Source/*.cpp"
+)
+
+# `Source` 디렉터리 내의 모든 헤더 파일(.h, .hpp 등)을 찾습니다.
+file(GLOB_RECURSE ECS_HEADERS
+    "Source/*.h"
+    "Source/*.hpp"
+	"Source/*.ixx"
+)
+
+
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
-add_executable (ECSExample "ECSExample.cpp" "ECSExample.h")
+add_executable (ECSExample "ECSExample.cpp" "ECSExample.h" ${ECS_SOURCES} ${ECS_HEADERS})
+
+set_property(TARGET ECSExample
+    PROPERTY TARGET_PRECOMPILE_HEADERS_CREATE_AS
+    "ECSPch.h"
+)
+
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ECSExample PROPERTY CXX_STANDARD 23)

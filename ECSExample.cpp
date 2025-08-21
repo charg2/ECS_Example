@@ -7,6 +7,8 @@
 #include <entt/entt.hpp>
 
 import ISystem;
+import CommandSystem;
+import MovementSystem;
 import IComponent;
 import Position;
 
@@ -21,58 +23,6 @@ import World;
 
 using namespace std;
 
-
-class CommandSystem final : public ISystem
-{
-public:
-    CommandSystem( Cell& cell )
-    : _cell{ cell }
-    {
-    }
-
-    ~CommandSystem() final = default;
-
-    void Update( float deltaTime ) final
-    {
-    }
-
-private:
-    Cell& _cell;
-};
-
-class MovementSystem final : public ISystem
-{
-public:
-    MovementSystem( Cell& cell )
-    : _cell{ cell }
-    {
-    }
-
-    ~MovementSystem() final = default;
-
-    void Update( float deltaTime ) final
-    {
-        auto view = _cell.view< Position, const DestPosition, const Velocity, SenderPtr >();
-        for ( auto [ entity, pos, destPos, vel, sender ] : view.each() )
-        {
-            auto fromPos = pos;
-
-            pos.x += vel.x * deltaTime;
-            pos.y += vel.y * deltaTime;
-            if ( pos.x >= destPos.x && pos.y >= destPos.y )
-                std::cout << "도착" << pos.x << ", " << pos.y << std::endl;
-
-            if ( sender )
-            {
-                C_Move move{ .fromPos = fromPos, .toPos = pos };
-                sender->Send( move );
-            }
-        }
-    }
-
-private:
-    Cell& _cell;
-};
 
 class SightSystem final : public ISystem
 {

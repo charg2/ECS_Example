@@ -4,7 +4,7 @@ module;
 
 export module Pc;
 
-import EntityObject;
+import WorldObject;
 
 export class Pc final : public WorldObject
 {
@@ -20,20 +20,4 @@ Pc::Pc( entt::entity entity )
 {
 }
 
-
 export using PcPtr = std::shared_ptr< Pc >;
-
-
-
-class Npc final : public WorldObject
-{
-public:
-    Npc() = default;
-    Npc( entt::entity entity )
-    : WorldObject{ entity }
-    {
-    }
-    ~Npc() final = default;
-};
-
-using NpcPtr = std::shared_ptr< Npc >;

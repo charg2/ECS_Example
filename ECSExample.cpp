@@ -8,73 +8,19 @@
 
 import ISystem;
 import IComponent;
+import Position;
+
+import Packet;
 import EntityObject;
+import WorldObject;
 
 import Sender;
 import Pc;
+import Npc;
+import World;
 
 using namespace std;
 
-struct Position
-{
-    float x;
-    float y;
-};
-
-struct DestPosition : public Position{};
-
-struct Velocity
-{
-    float x;
-    float y;
-};
-
-class IPacket{};
-class C_Move : public IPacket
-{
-public:
-    Position fromPos;
-    Position toPos;
-};
-
-class Cell : public entt::registry
-{
-public:
-    Cell()
-    : entt::registry( 64 )
-    {
-    }
-
-    template< std::derived_from< ISystem > T >
-    void RegisterSystem()
-    {
-        _systems.emplace_back( std::make_unique< T >( *this ) );
-    }
-
-    void Update( float deltaTime )
-    {
-        for ( auto& system : _systems )
-        {
-            system->Update( deltaTime );
-        }
-    }
-
-    void EnterCell( EntityObjectRef object )
-    {
-        _objects.emplace( object->GetEntity(), object );
-        object->SetEntity( entt::registry::create() );
-    }
-
-    void LeaveCell( EntityObjectRef object )
-    {
-        _objects.erase( object->GetEntity() );
-        entt::registry::destroy( object->GetEntity() );
-    }
-
-private:
-    std::vector< std::unique_ptr< ISystem > > _systems;
-    std::unordered_map< entt::entity, EntityObjectPtr > _objects;
-};
 
 class CommandSystem final : public ISystem
 {
@@ -218,13 +164,13 @@ auto main() -> int
 
     while ( runTime < 10s )
     {
-        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+        auto start = std::chrono::system_clock::now();
 
         GWorld->Update( deltaTime.count() );
 
         std::this_thread::sleep_for( 16ms );
 
-        deltaTime = std::chrono::system_clock::now() - start;
+        deltaTime = std::chrono::system_clock::now  () - start;
 
         runTime += deltaTime;
     }

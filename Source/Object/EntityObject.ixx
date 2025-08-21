@@ -45,6 +45,12 @@ public:
         return _sender;
     }
 
+    SenderRef GetSenderRef() const
+    {
+        return _sender;
+    }
+
+
     SenderPtr _sender{};
 };
 

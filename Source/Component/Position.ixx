@@ -6,6 +6,12 @@ export struct Position
     float y;
 };
 
+export struct Direction
+{
+    float x;
+    float y;
+};
+
 export struct DestPosition : public Position {};
 
 export struct Velocity

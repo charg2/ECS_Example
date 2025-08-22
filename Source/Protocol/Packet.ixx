@@ -3,6 +3,7 @@ export module Packet;
 import Position;
 
 export class IPacket {};
+
 export class C_Move : public IPacket
 {
 public:

@@ -1,46 +1,26 @@
 module;
 #include <entt/entt.hpp>
+#include <memory>
 
 export module World;
 
 import ISystem;
 import EntityObject;
+import Cell;
 
-export class Cell : public entt::registry
+export constexpr size_t row{ 2 };
+export constexpr size_t col{ 2 };
+
+export class World
 {
 public:
-    Cell()
-    : entt::registry( 64 )
-    {
-    }
-
-    template< std::derived_from< ISystem > T >
-    void RegisterSystem()
-    {
-        _systems.emplace_back( std::make_unique< T >( *this ) );
-    }
-
-    void Update( float deltaTime )
-    {
-        for ( auto& system : _systems )
-        {
-            system->Update( deltaTime );
-        }
-    }
-
-    void EnterCell( EntityObjectRef object )
-    {
-        _objects.emplace( object->GetEntity(), object );
-        object->SetEntity( entt::registry::create() );
-    }
-
-    void LeaveCell( EntityObjectRef object )
-    {
-        _objects.erase( object->GetEntity() );
-        entt::registry::destroy( object->GetEntity() );
-    }
+    World();
+    void Init();
+    void EnterWorld( EntityObjectRef object );
+    void Update( float deltaTime );
 
 private:
-    std::vector< std::unique_ptr< ISystem > > _systems;
-    std::unordered_map< entt::entity, EntityObjectPtr > _objects;
+    std::array< Cell, row * col > _cells;
 };
+
+export inline extern std::unique_ptr< World > GWorld{};

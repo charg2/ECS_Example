@@ -1,0 +1,89 @@
+#include <entt/entt.hpp>
+
+import ISystem;
+import EntityObject;
+import World;
+import CommandSystem;
+import MovementSystem;
+import SightSystem;
+import Pc;
+import Npc;
+import Position;
+import Sender;
+import WorldObject;
+import Cell;
+
+
+Cell::Cell()
+: entt::registry( 64 )
+{
+}
+
+void Cell::Update( float deltaTime )
+{
+    for ( auto& system : _systems )
+    {
+        system->Update( deltaTime );
+    }
+}
+
+void Cell::EnterCell( EntityObjectRef object )
+{
+    _objects.emplace( object->GetEntity(), object );
+    object->SetEntity( entt::registry::create() );
+}
+
+void Cell::LeaveCell( EntityObjectRef object )
+{
+    _objects.erase( object->GetEntity() );
+    entt::registry::destroy( object->GetEntity() );
+}
+
+World::World()
+{
+}
+
+template< std::derived_from< WorldObject > T >
+auto GetFactory( Cell& registry )
+{
+    auto obj{ std::make_shared< T >( registry.create() ) };
+
+    registry.emplace< Position >( obj->GetEntity(), 1.0f, 2.0f );
+    //registry.emplace< Direction >( obj->GetEntity(), 0.0f, 0.0f );
+
+    if constexpr ( std::is_same_v< T, Pc > )
+        obj->SetSender( std::make_shared< Sender >() );
+
+    if constexpr ( std::is_same_v< T, Npc > )
+        registry.emplace< DestPosition >( obj->GetEntity(), 4.0f, 5.0f );
+
+    registry.emplace< SenderPtr >( obj->GetEntity(), obj->GetSender() );
+
+    return obj;
+}
+
+void World::Init()
+{
+    for ( size_t i = 0; i < row * col; ++i )
+    {
+        auto& cell = _cells[ i ];
+        cell.RegisterSystem< CommandSystem >();
+        cell.RegisterSystem< MovementSystem >();
+        cell.RegisterSystem< SightSystem >();
+
+        //GetFactory< Pc >( cell );
+        GetFactory< Npc >( cell );
+    }
+}
+
+void World::EnterWorld( EntityObjectRef object )
+{
+}
+
+void World::Update( float deltaTime )
+{
+    for ( auto& cell : _cells )
+    {
+        cell.Update( deltaTime );
+    }
+}

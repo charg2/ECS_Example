@@ -1,14 +1,19 @@
-export module CommandSystem;
+export module SightSystem;
 
 import ISystem;
 
 export class Cell;
 
-export class CommandSystem final : public ISystem
+
+export class SightSystem final : public ISystem
 {
 public:
-    CommandSystem( Cell& cell );
-    ~CommandSystem() final = default;
+    SightSystem( Cell& cell )
+    : _cell{ cell }
+    {
+    }
+
+    ~SightSystem() final = default;
 
     void Update( float deltaTime ) final
     {

@@ -14,6 +14,7 @@ public:
     : WorldObject{ entity }
     {
     }
+
     ~Npc() final = default;
 };
 

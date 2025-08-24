@@ -43,14 +43,29 @@ file(GLOB_RECURSE ECS_HEADERS
 	"Source/*.ixx"
 )
 
-
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
-add_executable (ECSExample "ECSExample.cpp" "ECSExample.h" ${ECS_SOURCES} ${ECS_HEADERS})
+add_executable (ECSExample "main.cpp" "ECSExample.h" ${ECS_SOURCES} ${ECS_HEADERS})
 
-set_property(TARGET ECSExample
-    PROPERTY TARGET_PRECOMPILE_HEADERS_CREATE_AS
-    "ECSPch.h"
-)
+# 3. 각 소스 파일을 순회하며 디렉터리 구조에 맞는 source_group(필터)을 생성합니다.
+foreach(file ${ECS_SOURCES} ${ECS_HEADERS})
+    # 파일의 전체 경로에서 기본 소스 디렉터리 경로를 잘라내어 상대 경로를 구합니다.
+    # 예: C:/project/Source/System/MySystem.cpp -> System/MySystem.cpp
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/Source/" "" relative_path ${file})
+
+    # 파일명을 제외한 디렉터리 경로를 구합니다.
+    # 예: System/MySystem.cpp -> System
+    get_filename_component(group_path ${relative_path} DIRECTORY)
+    # Visual Studio 필터에서는 \를 사용하므로 변경해줍니다.
+    string(REPLACE "/" "\\" group_path "${group_path}")
+    # 소스 그룹(필터)을 생성하고 파일을 추가합니다.
+    # "Source Files" 라는 최상위 필터 아래에 폴더 구조가 생성됩니다.
+    source_group("Source Files\\${group_path}" FILES ${file})
+endforeach()
+
+# ECSExample 타겟의 모든 소스를 컴파일할 때 /Zc:preprocessor 옵션을 사용하도록 설정
+# 이렇게 하면 PCH를 만들 때와 다른 소스를 컴파일할 때 모두 이 옵션이 적용됩니다.
+target_compile_options(ECSExample PRIVATE /Zc:preprocessor)
+target_precompile_headers(ECSExample PRIVATE "Source/ECSPch.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ECSExample PROPERTY CXX_STANDARD 23)

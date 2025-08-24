@@ -1,10 +1,9 @@
-#include <entt/entt.hpp>
-
 import ISystem;
 import EntityObject;
 import World;
 import CommandSystem;
 import MovementSystem;
+import SpawnSystem;
 import SightSystem;
 import Pc;
 import Npc;
@@ -48,14 +47,14 @@ auto GetFactory( Cell& registry )
 {
     auto obj{ std::make_shared< T >( registry.create() ) };
 
-    registry.emplace< Position >( obj->GetEntity(), 1.0f, 2.0f );
+    registry.emplace< Position >( obj->GetEntity(), FVector{ 1.0f, 2.0f, 0.0f } );
     //registry.emplace< Direction >( obj->GetEntity(), 0.0f, 0.0f );
 
     if constexpr ( std::is_same_v< T, Pc > )
         obj->SetSender( std::make_shared< Sender >() );
 
     if constexpr ( std::is_same_v< T, Npc > )
-        registry.emplace< DestPosition >( obj->GetEntity(), 4.0f, 5.0f );
+        registry.emplace< DestPosition >( obj->GetEntity(), FVector{ 4.0f, 5.0f, 0.0f } );
 
     registry.emplace< SenderPtr >( obj->GetEntity(), obj->GetSender() );
 

@@ -23,30 +23,23 @@ void MovementSystem::Update( float deltaTime )
     for ( auto [ entity, pos, destPos, sender ] : view.each() )
     {
         auto fromPos = pos;
-        Position diff;
-        diff.x = destPos.x - pos.x;
-        diff.y = destPos.y - pos.y;
+        Position diff = ( destPos - pos );
 
-        auto distance = std::sqrt( diff.x * diff.x + diff.y * diff.y );
-        auto moveAcount = 2.0f * deltaTime;
-        if ( distance < moveAcount )
-            moveAcount = distance;
+        auto distance = diff.Size();
+        auto moveAmount = 2.0f * deltaTime;
 
-        auto moveX = diff.x / distance * moveAcount;
-        auto moveY = diff.y / distance * moveAcount;
-        pos.x += moveX;
-        pos.y += moveY;
-
-        /// 도착 여부 검사
-        if ( std::abs( pos.x - destPos.x ) < 0.01f && std::abs( pos.y - destPos.y ) < 0.01f )
+        if ( distance < moveAmount )
         {
-            /// 도착시 목적지를 변경
-            {
-                // 임시로 목적지를 변경
-                destPos.x += 1.0f;
-                destPos.y += 1.0f;
-            }
+            moveAmount = distance;
+            // 목적지 도착
+            //destPos = pos;
         }
+
+        Position dir      = diff.GetNormalize();
+        Position moveDist = dir * moveAmount;
+
+        //  이동 벡터로 현재 위치를 업데이트
+        Position nextPos = fromPos + moveDist;
 
         /// 셀 경계를 벗어낫는지  체크
         /// if ( pos.x < 0.0f || pos.x > 10.0f || pos.y < 0.0f || pos.y > 10.0f )
@@ -56,11 +49,11 @@ void MovementSystem::Update( float deltaTime )
             //_cell.EnterCell( sender );
         }
 
-        // 이동 결과 전송
-        if ( sender )
-        {
-            C_Move move{ .fromPos = fromPos, .toPos = pos };
-            sender->Send( move );
-        }
+        //// 이동 결과 전송
+        //if ( sender )
+        //{
+        //    C_Move move{ .fromPos = fromPos, .toPos = pos };
+        //    sender->Send( move );
+        //}
     }
 }

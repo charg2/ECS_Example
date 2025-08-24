@@ -1,6 +1,3 @@
-module;
-#include <entt/entt.hpp>
-
 export module EntityObject;
 import Sender;
 

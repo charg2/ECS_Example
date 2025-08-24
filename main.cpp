@@ -22,14 +22,15 @@ import Npc;
 import World;
 
 using namespace std;
+using namespace std::chrono;
 
 auto main() -> int
 {
     GWorld = std::make_unique< World >();
     GWorld->Init();
 
-    std::chrono::duration< float > deltaTime{};
-    std::chrono::duration< float > runTime{};
+    duration< float > deltaTime{};
+    duration< float > runTime{};
 
     while ( runTime < 10s )
     {
@@ -39,7 +40,7 @@ auto main() -> int
 
         std::this_thread::sleep_for( 16ms );
 
-        deltaTime = std::chrono::system_clock::now  () - start;
+        deltaTime = std::chrono::system_clock::now() - start;
 
         runTime += deltaTime;
     }

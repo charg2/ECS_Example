@@ -10,3 +10,10 @@ public:
     Position fromPos;
     Position toPos;
 };
+
+export class S_Move : public IPacket
+{
+public:
+    Position fromPos;
+    Position toPos;
+};

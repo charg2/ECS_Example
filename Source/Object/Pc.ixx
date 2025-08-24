@@ -1,7 +1,3 @@
-module;
-
-#include <entt/entt.hpp>
-
 export module Pc;
 
 import WorldObject;

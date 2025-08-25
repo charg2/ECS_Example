@@ -20,7 +20,7 @@ public:
     void Update( float deltaTime );
 
 private:
-    std::array< Cell, row * col > _cells;
+    std::vector< std::unique_ptr< Cell > > _cells;
 };
 
 export inline extern std::unique_ptr< World > GWorld{};

@@ -3,8 +3,8 @@ import EntityObject;
 import World;
 import CommandSystem;
 import MovementSystem;
-import SpawnSystem;
 import SightSystem;
+import SpawnSystem;
 import Pc;
 import Npc;
 import Position;
@@ -12,31 +12,6 @@ import Sender;
 import WorldObject;
 import Cell;
 
-
-Cell::Cell()
-: entt::registry( 64 )
-{
-}
-
-void Cell::Update( float deltaTime )
-{
-    for ( auto& system : _systems )
-    {
-        system->Update( deltaTime );
-    }
-}
-
-void Cell::EnterCell( EntityObjectRef object )
-{
-    _objects.emplace( object->GetEntity(), object );
-    object->SetEntity( entt::registry::create() );
-}
-
-void Cell::LeaveCell( EntityObjectRef object )
-{
-    _objects.erase( object->GetEntity() );
-    entt::registry::destroy( object->GetEntity() );
-}
 
 World::World()
 {
@@ -65,9 +40,10 @@ void World::Init()
 {
     for ( size_t i = 0; i < row * col; ++i )
     {
-        auto& cell = _cells[ i ];
+        auto& cell = *_cells.emplace_back( std::make_unique< Cell >( *this ) );
         cell.RegisterSystem< CommandSystem >();
         cell.RegisterSystem< MovementSystem >();
+        cell.RegisterSystem< SpawnSystem >();
         cell.RegisterSystem< SightSystem >();
 
         //GetFactory< Pc >( cell );
@@ -83,6 +59,6 @@ void World::Update( float deltaTime )
 {
     for ( auto& cell : _cells )
     {
-        cell.Update( deltaTime );
+        cell->Update( deltaTime );
     }
 }

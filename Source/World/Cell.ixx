@@ -6,10 +6,12 @@ export module Cell;
 import ISystem;
 import EntityObject;
 
+export class World;
+
 export class Cell : public entt::registry
 {
 public:
-    Cell();
+    Cell( World& world );
 
     template< std::derived_from< ISystem > T >
     void RegisterSystem()
@@ -22,6 +24,8 @@ public:
     void LeaveCell( EntityObjectRef object );
 
 private:
+    World& _world;
     std::vector< std::unique_ptr< ISystem > > _systems;
     std::unordered_map< entt::entity, EntityObjectPtr > _objects;
+    std::vector< Cell* > _neighbors;
 };

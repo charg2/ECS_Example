@@ -66,20 +66,22 @@ export struct FVector
 
     FVector operator-( const FVector& rhs )
     {
-        x -= rhs.x;
-        y -= rhs.y;
-        z -= rhs.z;
-
-        return *this;
+        return { x - rhs.x, y - rhs.y, z - rhs.z };
     }
 
     FVector operator+( const FVector& rhs )
     {
-        x += rhs.x;
-        y += rhs.y;
-        z += rhs.z;
+        return { x + rhs.x, y + rhs.y, z + rhs.z };
+    }
 
-        return *this;
+    FVector operator*( i32 multiple )
+    {
+        return { x + multiple, y + multiple, z + multiple };
+    }
+
+    FVector operator/( i32 divider )
+    {
+        return { x / divider, y / divider, z / divider };
     }
 
     FVector operator*=( i32 multiple )
@@ -90,16 +92,6 @@ export struct FVector
 
         return *this;
     }
-
-    FVector operator*( i32 multiple )
-    {
-        x *= multiple;
-        y *= multiple;
-        z *= multiple;
-
-        return *this;
-    }
-
 
     void operator/=( i32 d )
     {

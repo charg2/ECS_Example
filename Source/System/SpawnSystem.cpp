@@ -8,10 +8,10 @@ import Position;
 import Sender;
 import SpawnSystem;
 
-//SpawnSystem::SpawnSystem( Cell& cell )
-//: _cell{ cell }
-//{
-//}
+SpawnSystem::SpawnSystem( Cell& cell )
+: _cell{ cell }
+{
+}
 
 void SpawnSystem::Update( float deltaTime )
 {

@@ -11,7 +11,13 @@ public:
     Position toPos;
 };
 
-export class S_Move : public IPacket
+export class S_MoveFail : public IPacket
+{
+public:
+    Position fromPos;
+};
+
+export class S_MoveOk : public IPacket
 {
 public:
     Position fromPos;

@@ -5,7 +5,7 @@ module;
 export module World;
 
 import ISystem;
-import EntityObject;
+import WorldObject;
 import Cell;
 
 export constexpr size_t row{ 2 };
@@ -16,7 +16,8 @@ export class World
 public:
     World();
     void Init();
-    void EnterWorld( EntityObjectRef object );
+    static int ToCellIndex( size_t r, size_t c );
+    void EnterWorld( WorldObjectRef object );
     void Update( float deltaTime );
 
 private:

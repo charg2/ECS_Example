@@ -2,6 +2,7 @@ export module WorldObject;
 
 import Sender;
 import EntityObject;
+import Position;
 
 export class WorldObject : public EntityObject
 {
@@ -29,7 +30,18 @@ public:
         return _sender;
     }
 
+    Position GetPos()
+    {
+        return _pos;
+    }
 
+    Position& GetPosRef()
+    {
+        return _pos;
+    }
+
+    Sight _sight;
+    Position _pos{ {} };
     SenderPtr _sender{};
 };
 

@@ -1,6 +1,7 @@
 export module CommandSystem;
 
 import ISystem;
+import EntityObject;
 
 export class Cell;
 
@@ -11,6 +12,10 @@ public:
     ~CommandSystem() final = default;
 
     void Update( float deltaTime ) final
+    {
+    }
+
+    void OnEnter( EntityObjectRef ) final
     {
     }
 

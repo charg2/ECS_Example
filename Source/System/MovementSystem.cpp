@@ -57,3 +57,12 @@ void MovementSystem::Update( float deltaTime )
         //}
     }
 }
+
+void MovementSystem::OnEnter( EntityObjectRef obj )
+{
+    auto worldObject = std::static_pointer_cast< WorldObject >( obj );
+
+    _cell.emplace< Position >( obj->GetEntity(), FVector{ 1.0f, 2.0f, 0.0f } );
+    _cell.emplace< DestPosition >( obj->GetEntity(), FVector{ 2.0f, 4.0f, 0.0f } );
+    _cell.emplace< SenderPtr >( obj->GetEntity(), worldObject->GetSender() );
+}

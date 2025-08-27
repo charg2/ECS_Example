@@ -1,6 +1,7 @@
 export module MovementSystem;
 
 import ISystem;
+import EntityObject;
 
 export class Cell;
 export class Packet;
@@ -15,6 +16,9 @@ public:
     MovementSystem( Cell& cell );
     ~MovementSystem() final = default;
     void Update( float deltaTime ) final;
+
+    void OnEnter( EntityObjectRef obj ) final;
+
 
 private:
     Cell& _cell;

@@ -5,6 +5,7 @@ export module Cell;
 
 import ISystem;
 import EntityObject;
+import WorldObject;
 
 export class World;
 
@@ -19,13 +20,14 @@ public:
         _systems.emplace_back( std::make_unique< T >( *this ) );
     }
 
+    void AddNeighbor( Cell* cell );
     void Update( float deltaTime );
-    void EnterCell( EntityObjectRef object );
-    void LeaveCell( EntityObjectRef object );
+    void EnterCell( WorldObjectRef object );
+    void LeaveCell( WorldObjectRef object );
 
 private:
     World& _world;
     std::vector< std::unique_ptr< ISystem > > _systems;
-    std::unordered_map< entt::entity, EntityObjectPtr > _objects;
-    std::vector< Cell* > _neighbors;
+    std::unordered_map< entt::entity, WorldObjectPtr > _objects;
+    std::vector< Cell* > _neighbors{ 9 };
 };

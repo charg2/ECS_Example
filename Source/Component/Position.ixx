@@ -2,6 +2,11 @@ export module Position;
 
 float InvSqrt( float folatValue );
 
+export struct Sight
+{
+    std::unordered_set< class WorldObject* > _viewList;
+};
+
 export struct FVector
 {
     float x{};
